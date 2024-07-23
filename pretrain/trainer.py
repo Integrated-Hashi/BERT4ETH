@@ -9,6 +9,7 @@ from tqdm import tqdm
 import torch.nn.functional as F
 import os
 from torch.nn.utils import clip_grad_norm_
+from utils import save_log
 
 def negative_sample(sampler, sample_num):
     neg_ids = sampler.sample((sample_num,))
@@ -104,12 +105,12 @@ class BERT4ETHTrainer(nn.Module):
 
         return loss
 
-    def train(self):
+    def train(self, mode=True, log=None):
         assert self.args.ckpt_dir, "must specify the directory for storing checkpoint"
         accum_step = 0
         for epoch in range(self.num_epochs):
             # print("bias:", self.output_bias[:10])
-            accum_step = self.train_one_epoch(epoch, accum_step)
+            accum_step = self.train_one_epoch(epoch, accum_step, log)
             if (epoch+1) % 5 == 0 or epoch==0:
                 self.save_model(epoch+1, self.args.ckpt_dir)
 
@@ -168,9 +169,9 @@ class BERT4ETHTrainer(nn.Module):
         embedding_array = torch.cat(embedding_list, dim=0).cpu().numpy()
         return address_array, embedding_array
 
-    def train_one_epoch(self, epoch, accum_step):
+    def train_one_epoch(self, epoch, accum_step, log):
         self.model.train()
-
+        num_batches = len(self.data_loader)
         tqdm_dataloader = tqdm(self.data_loader)
 
         for batch_idx, batch in enumerate(tqdm_dataloader):
@@ -189,7 +190,8 @@ class BERT4ETHTrainer(nn.Module):
             accum_step += 1
             tqdm_dataloader.set_description(
                 'Epoch {}, Step {}, loss {:.6f} '.format(epoch+1, accum_step, loss.item()))
-
+            if batch_idx == num_batches - 1:
+                save_log(log, 'Epoch {}, Last Step loss: {:.6f}'.format(epoch + 1, loss.item()))
         return accum_step
 
     def save_model(self, epoch, ckpt_dir):

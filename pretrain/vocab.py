@@ -25,11 +25,11 @@ class FreqVocab(object):
         self.special_tokens = ["[MASK]", "[pad]", '[NO_USE]']
         self.token_to_ids = {}  # index begin from 1
 
-        # first special tokens for frequency factorization
+        # first special tokens for frequency factorization 给特殊的token一个id
         for token in self.special_tokens:
             self.token_to_ids[token] = len(self.token_to_ids) + 1
 
-        # then normal item
+        # then normal item 每个地址给个id
         for token, count in self.counter.most_common():
             self.token_to_ids[token] = len(self.token_to_ids) + 1
 

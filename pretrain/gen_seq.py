@@ -91,6 +91,7 @@ def seq_duplicate(eoa2seq_in, eoa2seq_out):
     for eoa in eoa2seq_in.keys():
         if len(eoa2seq_in[eoa]) >= 10000:
             continue
+        # 对序列按照时间戳进行排序
         seq_sorted = sorted(eoa2seq_in[eoa], key=functools.cmp_to_key(cmp_udf))
         seq_tmp = [e.copy() for e in seq_sorted]
         for i in range(len(seq_tmp) - 1, 0, -1):
@@ -99,6 +100,7 @@ def seq_duplicate(eoa2seq_in, eoa2seq_out):
             l_time = int(seq_tmp[i][2])
             f_time = int(seq_tmp[i - 1][2])
             delta_time = l_time - f_time
+            # 如果交易对手相同且时间差在3天内，则合并交易
             if f_acc != l_acc or delta_time > 86400 * 3:
                 continue
             # value add

@@ -40,15 +40,27 @@ class BERT4ETHDataloader:
         self.seq_list = self.preprocess(eoa2seq)
 
     def preprocess(self, eoa2seq):
+        """
+        预处理交易序列，包括截断到最大长度和打乱序列。
+
+        参数:
+        eoa2seq: dict, 每个EOA地址映射到其交易序列的字典。
+
+        返回:
+        seqs: list, 包含所有处理后的交易序列的列表。
+        """
         self.masked_lm_prob = self.args.masked_lm_prob
         # self.rng = random.Random(self.args.dataloader_random_seed)
         self.rng = random.Random()
+        # 计算滑动窗口步长，用于序列截断时的滑动间隔
         self.sliding_step = round(self.args.max_seq_length * 0.6)
 
         # preprocess
         length_list = []
+        # 遍历eoa2seq字典中的每个EOA地址和对应的交易序列
         for eoa in eoa2seq.keys():
             seq = eoa2seq[eoa]
+            # 将每个序列的长度添加到列表中
             length_list.append(len(seq))
 
         length_list = np.array(length_list)
@@ -56,33 +68,42 @@ class BERT4ETHDataloader:
         print("Mean:", np.mean(length_list))
         print("Seq num:", len(length_list))
 
-        # clip
+        # 定义序列的最大长度，减1是为了预留给特殊标记的空位
         max_num_tokens = self.args.max_seq_length - 1
+        # 初始化用于存储处理后序列的列表
         seqs = []
         idx = 0
+        # 遍历eoa2seq中的每个EOA地址及其对应的交易序列
         for eoa, seq in eoa2seq.items():
+            # 如果序列长度小于等于最大序列长度，则直接添加到seqs列表
             if len(seq) <= max_num_tokens:
                 seqs.append([[eoa, 0, 0, 0, 0, 0]])
+                # 追加原始交易序列
                 seqs[idx] += seq
                 idx += 1
             elif len(seq) > max_num_tokens:
+                # 计算截断的开始索引，使用sliding_step作为步长
                 beg_idx = list(range(len(seq) - max_num_tokens, 0, -1 * self.sliding_step))
+                # 确保包括第一个序列
                 beg_idx.append(0)
-
+                # 如果截断后的序列数量过多，随机采样500个不同的起始点
                 if len(beg_idx) > 500:
                     beg_idx = list(np.random.permutation(beg_idx)[:500])
+                    # 对采样后的序列进行截断和添加
                     for i in beg_idx:
                         seqs.append([[eoa, 0, 0, 0, 0, 0]])
                         seqs[idx] += seq[i:i + max_num_tokens]
                         idx += 1
 
                 else:
+                    # 如果序列数量不多，则直接进行截断和添加
                     for i in beg_idx[::-1]:
                         seqs.append([[eoa, 0, 0, 0, 0, 0]])
                         seqs[idx] += seq[i:i + max_num_tokens]
                         idx += 1
-
+        # 在所有序列处理完毕后，打乱seqs列表，以增加训练数据的随机性
         self.rng.shuffle(seqs)
+        # 返回处理后的序列列表
         return seqs
 
     def get_train_loader(self):

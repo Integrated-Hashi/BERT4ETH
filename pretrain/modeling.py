@@ -162,13 +162,37 @@ class MultiHeadedAttention(nn.Module):
 
         return self.output_linear(x)
 
+class FrequencyLayer(nn.Module):
+    def __init__(self, args):
+        super(FrequencyLayer, self).__init__()
+        self.out_dropout = nn.Dropout(args.out_dropout)
+        self.LayerNorm = LayerNorm(args.layer_norm, eps=1e-12)
+        self.c = args.c
+        self.sqrt_beta = nn.Parameter(torch.randn(1, 1, args.layer_norm))
+
+    def forward(self, input_tensor):
+        # [batch, seq_len, hidden]
+        batch, seq_len, hidden = input_tensor.shape
+        x = torch.fft.rfft(input_tensor, dim=1, norm='ortho')
+
+        low_pass = x[:]
+        low_pass[:, self.c:, :] = 0
+        low_pass = torch.fft.irfft(low_pass, n=seq_len, dim=1, norm='ortho')
+        high_pass = input_tensor - low_pass
+        sequence_emb_fft = low_pass + (self.sqrt_beta**2) * high_pass
+
+        hidden_states = self.out_dropout(sequence_emb_fft)
+        hidden_states = self.LayerNorm(hidden_states + input_tensor)
+
+        return hidden_states
+
 class TransformerBlock(nn.Module):
     """
     Bidirectional Encoder = Transformer (self-attention)
     Transformer = MultiHead_Attention + Feed_Forward with sublayer connection
     """
 
-    def __init__(self, hidden, attn_heads, feed_forward_hidden, dropout):
+    def __init__(self, args):
         """
         :param hidden: hidden size of transformer
         :param attn_heads: head sizes of multi-head attention
@@ -177,14 +201,23 @@ class TransformerBlock(nn.Module):
         """
 
         super().__init__()
+        hidden = args.hidden_size
+        attn_heads = args.num_attention_heads
+        feed_forward_hidden = args.hidden_size * 4
+        dropout = args.hidden_dropout_prob
+        self.alpha = args.alpha
         self.attention = MultiHeadedAttention(h=attn_heads, d_model=hidden, dropout=dropout)
         self.feed_forward = PositionwiseFeedForward(d_model=hidden, d_ff=feed_forward_hidden, dropout=dropout)
         self.input_sublayer = SublayerConnection(size=hidden, dropout=dropout)
+        self.filter_layer = FrequencyLayer(args)
         self.output_sublayer = SublayerConnection(size=hidden, dropout=dropout)
         self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x, mask):
-        x = self.input_sublayer(x, lambda _x: self.attention.forward(_x, _x, _x, mask=mask))
+        gsp = self.input_sublayer(x, lambda _x: self.attention.forward(_x, _x, _x, mask=mask))
+        dsp = self.filter_layer(x)
+        x = self.alpha * dsp + (1 - self.alpha) * gsp
+        x = self.feed_forward(x)
         x = self.output_sublayer(x, self.feed_forward)
         return self.dropout(x)
 
@@ -243,10 +276,7 @@ class BERT4ETH(nn.Module):
 
         # multi-layers transformer blocks, deep network
         self.transformer_blocks = nn.ModuleList(
-            [TransformerBlock(args.hidden_size,
-                              args.num_attention_heads,
-                              args.hidden_size * 4,
-                              args.hidden_dropout_prob)
+            [TransformerBlock(args)
              for _ in range(args.num_hidden_layers)])
 
         # self.out = nn.Linear(config["hidden_size"], config["vocab_size"])

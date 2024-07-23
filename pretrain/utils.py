@@ -202,3 +202,17 @@ def recalls_and_ndcgs_for_ks(scores, labels, ks):
 
     return metrics
 
+
+def save_log(log, text):
+    log.write(text)
+    log.write("\n")
+    log.flush()
+    return
+
+def parameters_log(log, args):
+    save_log(log, f"========== Start of Args ==========")
+    for arg_name, arg_value in vars(args).items():
+        save_log(log, f"{arg_name}: {arg_value}")
+    save_log(log, f"========== End of Args ==========")
+
+

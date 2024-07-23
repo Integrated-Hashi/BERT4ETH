@@ -1,0 +1,140 @@
+========== Start of Pretrain Log - 2024-06-17_21-27-42 ==========
+
+========== Start of Args ==========
+dataloader_random_seed: 12345
+train_batch_size: 256
+eval_batch_size: 1024
+ckpt_dir: bert4eth_filter
+data_dir: ../outputs/
+vocab_filename: vocab
+log_dir: ../logs/
+device: cuda
+optimizer: Adam
+lr: 0.0001
+num_train_steps: 1000000
+num_warmup_steps: 100
+num_epochs: 100
+model_init_seed: 0
+masked_lm_prob: 0.8
+neg_sample_num: 5000
+neg_strategy: zip
+max_seq_length: 100
+bizdate: bert4eth_filter
+init_checkpoint: None
+out_dropout: 0.5
+layer_norm: 64
+c: 2
+enable_lr_schedule: True
+decay_step: 25
+gamma: 1.0
+hidden_act: gelu
+hidden_size: 64
+initializer_range: 0.02
+num_hidden_layers: 8
+num_attention_heads: 2
+vocab_size: 3000000
+hidden_dropout_prob: 0.2
+attention_probs_dropout_prob: 0.2
+max_predictions_per_seq: 80
+sliding_step: 60
+========== End of Args ==========
+Epoch 1, Last Step loss: 7.648718
+
+Epoch 2, Last Step loss: 7.290871
+
+Epoch 3, Last Step loss: 7.459489
+
+Epoch 4, Last Step loss: 6.925282
+
+Epoch 5, Last Step loss: 6.100998
+
+Epoch 6, Last Step loss: 6.114176
+
+Epoch 7, Last Step loss: 4.910771
+
+Epoch 8, Last Step loss: 6.024850
+
+Epoch 9, Last Step loss: 5.241926
+
+Epoch 10, Last Step loss: 5.714604
+
+Epoch 11, Last Step loss: 5.327279
+
+Epoch 12, Last Step loss: 5.283656
+
+Epoch 13, Last Step loss: 5.145701
+
+Epoch 14, Last Step loss: 4.817541
+
+Epoch 15, Last Step loss: 4.751362
+
+Epoch 16, Last Step loss: 5.354075
+
+Epoch 17, Last Step loss: 4.340042
+
+Epoch 18, Last Step loss: 4.688029
+
+Epoch 19, Last Step loss: 4.547790
+
+Epoch 20, Last Step loss: 4.417052
+
+Epoch 21, Last Step loss: 3.628185
+
+Epoch 22, Last Step loss: 4.116041
+
+Epoch 23, Last Step loss: 3.755824
+
+Epoch 24, Last Step loss: 4.114767
+
+Epoch 25, Last Step loss: 4.462448
+
+Epoch 26, Last Step loss: 3.444646
+
+Epoch 27, Last Step loss: 3.840280
+
+Epoch 28, Last Step loss: 4.412920
+
+Epoch 29, Last Step loss: 4.151476
+
+Epoch 30, Last Step loss: 3.411152
+
+Epoch 31, Last Step loss: 3.859330
+
+Epoch 32, Last Step loss: 3.673109
+
+Epoch 33, Last Step loss: 3.664939
+
+Epoch 34, Last Step loss: 4.094859
+
+Epoch 35, Last Step loss: 3.925070
+
+Epoch 36, Last Step loss: 3.203336
+
+Epoch 37, Last Step loss: 3.533411
+
+Epoch 38, Last Step loss: 4.018821
+
+Epoch 39, Last Step loss: 4.065102
+
+Epoch 40, Last Step loss: 3.628285
+
+Epoch 41, Last Step loss: 3.130696
+
+Epoch 42, Last Step loss: 3.089080
+
+Epoch 43, Last Step loss: 3.394041
+
+Epoch 44, Last Step loss: 2.880184
+
+Epoch 45, Last Step loss: 3.490640
+
+Epoch 46, Last Step loss: 3.160236
+
+Epoch 47, Last Step loss: 3.560862
+
+Epoch 48, Last Step loss: 2.731529
+
+Epoch 49, Last Step loss: 3.536501
+
+Epoch 50, Last Step loss: 2.649691
+

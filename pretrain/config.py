@@ -1,6 +1,6 @@
 import argparse
 import math
-
+from utils import save_log
 parser = argparse.ArgumentParser(description='BERT4ETH')
 ################
 # Dataloader
@@ -11,6 +11,7 @@ parser.add_argument('--eval_batch_size', type=int, default=1024)
 parser.add_argument('--ckpt_dir', default="cpkt_local", type=str)
 parser.add_argument('--data_dir', type=str, default='../outputs/', help='data dir.')
 parser.add_argument('--vocab_filename', type=str, default='vocab', help='vocab filename')
+parser.add_argument('--log_dir', type=str, default='../logs/', help='data dir.')
 ################
 # Trainer
 ################
@@ -31,13 +32,20 @@ parser.add_argument('--max_seq_length', type=int, default=100, help='max sequenc
 parser.add_argument('--bizdate', type=str, default=None, help='the signature of running experiments')
 parser.add_argument('--init_checkpoint', type=str, help='the directory name of checkpoint')
 ################
+# FrequencyLayer
+################
+parser.add_argument('--out_dropout', type=float, default=0.5)
+parser.add_argument('--layer_norm', type=int, default=64)
+parser.add_argument('--c', type=int, default=(3 // 2 + 1))
+parser.add_argument('--alpha', type=float, default=0.7)
+################
 args = parser.parse_args()
 
 def set_template(args):
     args.enable_lr_schedule = True
     args.decay_step = 25
     args.gamma = 1.0
-    args.num_epochs = 50
+    args.num_epochs = 100
     args.model_init_seed = 0
 
     # model configuration

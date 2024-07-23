@@ -4,10 +4,17 @@ from modeling import BERT4ETH
 from trainer import BERT4ETHTrainer
 import pickle as pkl
 from vocab import FreqVocab
-
-
+from utils import save_log, parameters_log
+import datetime
+import os
 def train():
-
+    # create log
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+    log = open(args.log_dir + 'pretrain_' + current_time + '.txt', 'a')
+    save_log(log, f"========== Start of Pretrain Log - {current_time} ==========\n")
+    parameters_log(log, args)
     # prepare dataset
     vocab = FreqVocab()
     print("===========Load Sequence===========")
@@ -33,10 +40,12 @@ def train():
     # model
     model = BERT4ETH(args)
 
-    # tranier
+    # trainer
     trainer = BERT4ETHTrainer(args, vocab, model, train_loader)
-    trainer.train()
+    trainer.train(log=log)
 
+    save_log(log, f"========== End of Pretrain Log ==========\n")
+    log.close()
 
 if __name__ == '__main__':
     train()
