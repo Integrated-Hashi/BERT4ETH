@@ -5,9 +5,9 @@ import functools
 import os
 
 parser = argparse.ArgumentParser(description="Data Processing with PyTorch")
-parser.add_argument("--phisher", type=bool, default=True, help="whether to include phisher detection dataset.")
+parser.add_argument("--phisher", type=bool, default=False, help="whether to include phisher detection dataset.")
 parser.add_argument("--deanon", type=bool, default=False, help="whether to include de-anonymization dataset.")
-parser.add_argument("--tornado", type=bool, default=False, help="whether to include tornado dataset.")
+parser.add_argument("--tornado", type=bool, default=True, help="whether to include tornado dataset.")
 parser.add_argument("--data_dir", type=str, default="../data", help="data directory.")
 parser.add_argument("--dataset", type=str, default=None, help="which dataset to use")
 parser.add_argument("--bizdate", type=str, default=None, help="the date of running experiments.")
